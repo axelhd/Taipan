@@ -1,0 +1,5 @@
+python manage.py runserver
+python manage.py makemigrations
+python manage.py migrate
+
+curl -X POST -H "Content-Type: application/json" -d """{"command": "your_output_value"}""" 127.0.0.1:8000/set
