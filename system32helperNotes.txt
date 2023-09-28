@@ -1,0 +1,8 @@
+Awake:
+Get and execute commands 5 times in a row with 30s delay.
+If command has not been provided in each of the 5 badges
+program will return to sleeping.
+
+Sleeping:
+Get and execute commands 5 times a time with 60s delay.
+If command has benn provided every time program wakes up.
