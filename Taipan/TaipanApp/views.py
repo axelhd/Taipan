@@ -6,7 +6,6 @@ from django.http import HttpResponse, JsonResponse
 from .models import Command
 from django.views.decorators.csrf import csrf_exempt
 
-
 script_directory = os.path.dirname(os.path.abspath(__file__))
 data_file_path = os.path.join(script_directory, 'data.html')
 
@@ -26,9 +25,20 @@ with open(data_file_path) as f:
 #Main
 if proc:
 
-#Home (not used)
+#Home
     def home(request):
-        return HttpResponse('Under development')
+
+        id = 1
+        command = "x"
+        output = "y"
+
+        context = {
+            'id': id,
+            'command': command,
+            'output': output
+        }
+
+        return render(request, 'templates/home.html', context)
 
 #Allow clients to acces command
     def get(request, id):
