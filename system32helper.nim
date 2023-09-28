@@ -42,35 +42,6 @@ proc sendOutput(input: string) =
 
 proc main() =
   while true:
-    if state == "sleep":
-      echo "state sleep"
-      if getCommand() != "":
-        sendOutput(runCommand(getCommand()))
-        echo "Here"
-        sleep(30000)
-        if getCommand() != "":
-          sendOutput(runCommand(getCommand()))
-          echo "Here2"
-          state = "awake"
-          echo "Awake"
-          sleep(30000)
-      sleep(60000)
-    elif state == "awake":
-      echo "Awake"
-      if getCommand() != "":
-        sendOutput(runCommand(getCommand()))
-        echo "Here3"
-        sleep(30000)
-        if getCommand() != "":
-          sendOutput(runCommand(getCommand()))
-          echo "Here4"
-          sleep(30000)
-        else:
-          echo "state sleep"
-          state = "sleep"
-
-proc main2() =
-  while true:
     if state == "awake":
       if sleepcheck == true:
         state = "sleep"
@@ -96,4 +67,4 @@ proc main2() =
     if state == "sleep":
       echo "hi"
       
-main2()
+main()
