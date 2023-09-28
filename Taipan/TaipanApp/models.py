@@ -9,3 +9,4 @@ class Command(models.Model):
     command = models.TextField(default='')
     target = models.IntegerField(default=0)
     output = models.TextField(default='')
+    id = models.IntegerField(default=0, primary_key=True)

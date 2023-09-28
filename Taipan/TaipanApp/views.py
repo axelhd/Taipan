@@ -5,6 +5,7 @@ from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponse, JsonResponse
 from .models import Command
 from django.views.decorators.csrf import csrf_exempt
+from django import forms
 
 script_directory = os.path.dirname(os.path.abspath(__file__))
 data_file_path = os.path.join(script_directory, 'data.html')
@@ -27,18 +28,20 @@ if proc:
 
 #Home
     def home(request):
-
         id = 1
-        command = "x"
-        output = "y"
+        Target = 1
+        command = Command.objects.get(target=Target, completed=True, id=id).command
+        output = Command.objects.get(target=Target, completed=True, id=id).output
+
 
         context = {
-            'id': id,
+            'Target': Target,
             'command': command,
-            'output': output
+            'output': output,
+            'id': id
         }
 
-        return render(request, 'templates/home.html', context)
+        return render(request, 'home.html', context)
 
 #Allow clients to acces command
     def get(request, id):
