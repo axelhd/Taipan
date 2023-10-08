@@ -1,0 +1,154 @@
+[gd_scene load_steps=2 format=3 uid="uid://ba67522bxth3r"]
+
+[sub_resource type="GDScript" id="GDScript_gkm6w"]
+script/source = "extends Node2D
+
+@onready var cmd_nr_label = $Control/cmd_nr/commandNumber
+@onready var cmd_input = $Control/Input
+@onready var cmd_output = $Control/Output
+@onready var tgtin = $Control/TargetIn
+@onready var tgt_lbl = $Control/TargetLabel
+@onready var HTTPr = $HTTPRequest
+
+var tgt = 1
+var cmd_nr = 1
+var url = \"http://127.0.0.1:8000/control\"
+var headers = [\"Content-Type: application/json\"]
+
+func _ready():
+	cmd_nr_label.text = str(cmd_nr)
+	tgt_lbl.text = (\"Current Target: \" + str(tgt))
+	print(\"Getting command\")
+	var get_data = {\"command\": \"\", \"id\": tgt, \"operation\": \"get\"}
+	HTTPr.request(url, headers, HTTPClient.METHOD_POST, JSON.stringify(get_data))
+
+
+func send_command(command):
+	print(command)
+	var send_data = {\"command\": command, \"id\": tgt, \"operation\": \"set\"}
+	HTTPr.request(url, headers, HTTPClient.METHOD_POST, JSON.stringify(send_data))
+
+func get_command():
+	print(\"Getting command\")
+	var get_data = {\"command\": \"Hello World!\", \"id\": tgt, \"operation\": \"get\", \"number\": cmd_nr}
+	HTTPr.request(url, headers, HTTPClient.METHOD_POST, JSON.stringify(get_data))
+
+
+func _on_next_command_pressed():
+	cmd_nr += 1
+	cmd_nr_label.text = str(cmd_nr)
+	get_command()
+
+
+func _on_previous_command_pressed():
+	cmd_nr -= 1
+	cmd_nr_label.text = str(cmd_nr)
+	get_command()
+
+
+func _on_apply_pressed():
+	tgt = int(tgtin.text)
+	tgt_lbl.text = (\"Current Target: \" + str(tgt))
+
+
+func _on_request_completed(result, response_code, headers, body):
+	var json = JSON.parse_string(body.get_string_from_utf8())
+	print(json[\"output\"])
+
+
+func _on_get_command_pressed():
+	get_command()
+
+
+func _on_send_command_pressed():
+	send_command(str(cmd_input.text))
+	cmd_input.text = \"\"
+"
+
+[node name="Main" type="Node2D"]
+script = SubResource("GDScript_gkm6w")
+
+[node name="Control" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+
+[node name="cmd_nr" type="VBoxContainer" parent="Control"]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="nextCommand" type="Button" parent="Control/cmd_nr"]
+layout_mode = 2
+text = "Next Command"
+
+[node name="previousCommand" type="Button" parent="Control/cmd_nr"]
+layout_mode = 2
+text = "Previous Command"
+
+[node name="commandNumber" type="Label" parent="Control/cmd_nr"]
+layout_mode = 2
+
+[node name="Input" type="TextEdit" parent="Control"]
+layout_mode = 1
+offset_top = 93.0
+offset_right = 576.0
+offset_bottom = 588.0
+
+[node name="Output" type="CodeEdit" parent="Control"]
+layout_mode = 1
+offset_left = 576.0
+offset_right = 1152.0
+offset_bottom = 648.0
+editable = false
+
+[node name="SendCommand" type="Button" parent="Control"]
+layout_mode = 0
+offset_top = 588.0
+offset_right = 576.0
+offset_bottom = 648.0
+text = "Send Command"
+
+[node name="TargetIn" type="TextEdit" parent="Control"]
+layout_mode = 2
+offset_left = 440.0
+offset_right = 572.0
+offset_bottom = 35.0
+text = "1"
+
+[node name="Apply" type="Button" parent="Control"]
+layout_mode = 0
+offset_left = 440.0
+offset_top = 35.0
+offset_right = 572.0
+offset_bottom = 66.0
+text = "Apply"
+
+[node name="TargetLabel" type="Label" parent="Control"]
+layout_mode = 0
+offset_left = 440.0
+offset_top = 66.0
+offset_right = 572.0
+offset_bottom = 93.0
+
+[node name="getCommand" type="Button" parent="Control"]
+layout_mode = 0
+offset_left = 159.0
+offset_right = 276.0
+offset_bottom = 66.0
+text = "Get command"
+
+[node name="HTTPRequest" type="HTTPRequest" parent="."]
+
+[connection signal="pressed" from="Control/cmd_nr/nextCommand" to="." method="_on_next_command_pressed"]
+[connection signal="pressed" from="Control/cmd_nr/previousCommand" to="." method="_on_previous_command_pressed"]
+[connection signal="pressed" from="Control/SendCommand" to="." method="_on_send_command_pressed"]
+[connection signal="pressed" from="Control/Apply" to="." method="_on_apply_pressed"]
+[connection signal="pressed" from="Control/getCommand" to="." method="_on_get_command_pressed"]

